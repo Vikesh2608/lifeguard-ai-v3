@@ -125,3 +125,23 @@ def get_wellness():
     ).all()
 
     return logs
+
+@app.post("/wellness")
+def save_wellness(
+    wellness: schemas.WellnessCreate
+):
+    db = SessionLocal()
+
+    new_record = models.Wellness(
+        email=wellness.email,
+        mood=wellness.mood,
+        sleep_hours=wellness.sleep_hours,
+        stress_level=wellness.stress_level
+    )
+
+    db.add(new_record)
+    db.commit()
+
+    return {
+        "message": "Wellness Saved Successfully"
+    }
