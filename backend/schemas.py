@@ -16,3 +16,9 @@ class WellnessCreate(BaseModel):
     sleep_hours: int
     water_glasses: int
     mood: str
+
+class WellnessCreate(BaseModel):
+    email: str
+    mood: str
+    sleep_hours: int
+    stress_level: int
