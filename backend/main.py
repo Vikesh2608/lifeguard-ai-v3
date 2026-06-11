@@ -57,3 +57,26 @@ def register_user(
     return {
         "message": "User Registered Successfully"
     }
+    @app.post("/login")
+def login_user(
+    user: schemas.UserLogin
+):
+    db = SessionLocal()
+
+    existing_user = (
+        db.query(models.User)
+        .filter(
+            models.User.email == user.email,
+            models.User.password == user.password
+        )
+        .first()
+    )
+
+    if existing_user:
+        return {
+            "message": "Login Successful"
+        }
+
+    return {
+        "message": "Invalid Credentials"
+    }
