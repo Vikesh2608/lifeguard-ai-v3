@@ -24,3 +24,16 @@ class WellnessLog(Base):
     water_glasses = Column(Integer)
 
     mood = Column(String)
+
+class Wellness(Base):
+    __tablename__ = "wellness"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    email = Column(String)
+
+    mood = Column(String)
+
+    sleep_hours = Column(Integer)
+
+    stress_level = Column(Integer)
