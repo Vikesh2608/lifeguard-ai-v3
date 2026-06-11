@@ -95,3 +95,33 @@ def login_user(
     return {
         "message": "Invalid Credentials"
     }
+
+@app.post("/wellness")
+def create_wellness(
+    wellness: schemas.WellnessCreate
+):
+    db = SessionLocal()
+
+    new_log = models.WellnessLog(
+        sleep_hours=wellness.sleep_hours,
+        water_glasses=wellness.water_glasses,
+        mood=wellness.mood
+    )
+
+    db.add(new_log)
+    db.commit()
+
+    return {
+        "message": "Wellness Log Saved"
+    }
+
+
+@app.get("/wellness")
+def get_wellness():
+    db = SessionLocal()
+
+    logs = db.query(
+        models.WellnessLog
+    ).all()
+
+    return logs
