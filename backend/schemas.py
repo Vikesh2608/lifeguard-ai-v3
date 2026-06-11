@@ -11,3 +11,8 @@ class UserCreate(BaseModel):
 class UserLogin(BaseModel):
     email: str
     password: str
+
+class WellnessCreate(BaseModel):
+    sleep_hours: int
+    water_glasses: int
+    mood: str
