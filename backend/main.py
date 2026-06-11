@@ -1,10 +1,26 @@
 from fastapi import FastAPI
 
-app = FastAPI(title="LifeGuard AI")
+from database import SessionLocal
+from database import engine
+
+import models
+import schemas
+
+app = FastAPI(
+    title="LifeGuard AI"
+)
+
+models.Base.metadata.create_all(
+    bind=engine
+)
+
 
 @app.get("/")
 def home():
-    return {"message": "LifeGuard AI v3 Running Successfully"}
+    return {
+        "message": "LifeGuard AI v3 Running Successfully"
+    }
+
 
 @app.get("/debug")
 def debug():
@@ -13,9 +29,31 @@ def debug():
         "status": "debug endpoint working"
     }
 
+
 @app.get("/vikesh-test")
 def test():
     return {
         "status": "SUCCESS",
         "message": "Backend Connected"
+    }
+
+
+@app.post("/register")
+def register_user(
+    user: schemas.UserCreate
+):
+    db = SessionLocal()
+
+    new_user = models.User(
+        first_name=user.first_name,
+        last_name=user.last_name,
+        email=user.email,
+        password=user.password
+    )
+
+    db.add(new_user)
+    db.commit()
+
+    return {
+        "message": "User Registered Successfully"
     }
