@@ -5,10 +5,13 @@ from database import SessionLocal, engine
 import models
 import schemas
 
+from auth import hash_password, verify_password
+
 app = FastAPI(
     title="LifeGuard AI"
 )
 
+# Create database tables
 models.Base.metadata.create_all(bind=engine)
 
 
@@ -41,11 +44,22 @@ def register_user(
 ):
     db = SessionLocal()
 
+    existing_user = (
+        db.query(models.User)
+        .filter(models.User.email == user.email)
+        .first()
+    )
+
+    if existing_user:
+        return {
+            "message": "Email already registered"
+        }
+
     new_user = models.User(
         first_name=user.first_name,
         last_name=user.last_name,
         email=user.email,
-        password=user.password
+        password=hash_password(user.password)
     )
 
     db.add(new_user)
@@ -65,13 +79,15 @@ def login_user(
     existing_user = (
         db.query(models.User)
         .filter(
-            models.User.email == user.email,
-            models.User.password == user.password
+            models.User.email == user.email
         )
         .first()
     )
 
-    if existing_user:
+    if existing_user and verify_password(
+        user.password,
+        existing_user.password
+    ):
         return {
             "message": "Login Successful"
         }
