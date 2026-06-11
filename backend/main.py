@@ -1,3 +1,40 @@
+from fastapi import FastAPI
+from sqlalchemy.orm import Session
+
+from database import SessionLocal, engine
+import models
+import schemas
+
+app = FastAPI(
+    title="LifeGuard AI"
+)
+
+models.Base.metadata.create_all(bind=engine)
+
+
+@app.get("/")
+def home():
+    return {
+        "message": "LifeGuard AI v3 Running Successfully"
+    }
+
+
+@app.get("/debug")
+def debug():
+    return {
+        "version": "v3",
+        "status": "debug endpoint working"
+    }
+
+
+@app.get("/vikesh-test")
+def test():
+    return {
+        "status": "SUCCESS",
+        "message": "Backend Connected"
+    }
+
+
 @app.post("/register")
 def register_user(
     user: schemas.UserCreate
