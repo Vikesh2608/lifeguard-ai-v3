@@ -15,7 +15,7 @@ class UserLogin(BaseModel):
 
 class WellnessCreate(BaseModel):
     email: str
-    mood: int
+    mood: str
     sleep_hours: int
     stress_level: int
 
