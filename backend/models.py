@@ -15,6 +15,8 @@ class User(Base):
     password = Column(String)
 
 
+from datetime import datetime
+
 class Wellness(Base):
     __tablename__ = "wellness"
 
@@ -27,3 +29,8 @@ class Wellness(Base):
     sleep_hours = Column(Integer)
 
     stress_level = Column(Integer)
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
