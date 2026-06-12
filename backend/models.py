@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
 from database import Base
+from datetime import datetime
 
 
 class User(Base):
@@ -8,14 +9,13 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     first_name = Column(String)
+
     last_name = Column(String)
 
     email = Column(String, unique=True, index=True)
 
     password = Column(String)
 
-
-from datetime import datetime
 
 class Wellness(Base):
     __tablename__ = "wellness"
