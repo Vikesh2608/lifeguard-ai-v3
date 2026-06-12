@@ -158,6 +158,69 @@ def get_wellness_history(email: str):
     return records
 
 # ==========================
+# HEALTH SCORE
+# ==========================
+
+@app.get("/health-score/{email}")
+def get_health_score(email: str):
+
+    db = SessionLocal()
+
+    records = (
+        db.query(models.Wellness)
+        .filter(models.Wellness.email == email)
+        .all()
+    )
+
+    if not records:
+        return {
+            "overall_score": 0,
+            "sleep_score": 0,
+            "stress_score": 0,
+            "mood_score": 0,
+            "message": "No wellness records found"
+        }
+
+    latest = records[-1]
+
+    # Sleep Score
+    sleep_score = min(
+        (latest.sleep_hours / 8) * 100,
+        100
+    )
+
+    # Stress Score
+    stress_score = max(
+        100 - (latest.stress_level * 10),
+        0
+    )
+
+    # Mood Score
+    mood = latest.mood.lower()
+
+    if mood == "happy":
+        mood_score = 100
+    elif mood == "good":
+        mood_score = 90
+    elif mood == "okay":
+        mood_score = 70
+    elif mood == "sad":
+        mood_score = 40
+    else:
+        mood_score = 60
+
+    overall_score = round(
+        (sleep_score + stress_score + mood_score) / 3
+    )
+
+    return {
+        "overall_score": overall_score,
+        "sleep_score": round(sleep_score),
+        "stress_score": round(stress_score),
+        "mood_score": round(mood_score)
+    }
+
+# ==========================
 # AI ASSISTANT
 # ==========================
 
