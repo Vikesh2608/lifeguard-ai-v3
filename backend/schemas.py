@@ -18,3 +18,6 @@ class WellnessCreate(BaseModel):
     mood: str
     sleep_hours: int
     stress_level: int
+
+class AIRequest(BaseModel):
+    message: str
