@@ -6,12 +6,16 @@ import models
 import schemas
 
 from auth import hash_password, verify_password
+from ai_assistant import ask_lifeguard_ai
 
 app = FastAPI(
     title="LifeGuard AI"
 )
 
-# CORS FIX
+# ==========================
+# CORS
+# ==========================
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -20,9 +24,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Create database tables
+# ==========================
+# DATABASE
+# ==========================
+
 models.Base.metadata.create_all(bind=engine)
 
+# ==========================
+# HOME
+# ==========================
 
 @app.get("/")
 def home():
@@ -45,7 +55,6 @@ def test():
         "status": "SUCCESS",
         "message": "Backend Connected"
     }
-
 
 # ==========================
 # USER REGISTRATION
@@ -81,7 +90,6 @@ def register_user(user: schemas.UserCreate):
         "message": "User Registered Successfully"
     }
 
-
 # ==========================
 # LOGIN
 # ==========================
@@ -109,7 +117,6 @@ def login_user(user: schemas.UserLogin):
         "message": "Invalid Credentials"
     }
 
-
 # ==========================
 # WELLNESS SAVE
 # ==========================
@@ -133,7 +140,6 @@ def save_wellness(wellness: schemas.WellnessCreate):
         "message": "Wellness Saved Successfully"
     }
 
-
 # ==========================
 # WELLNESS HISTORY
 # ==========================
@@ -150,3 +156,26 @@ def get_wellness_history(email: str):
     )
 
     return records
+
+# ==========================
+# AI ASSISTANT
+# ==========================
+
+@app.post("/ai-chat")
+def ai_chat(request: schemas.AIRequest):
+
+    try:
+
+        response = ask_lifeguard_ai(
+            request.message
+        )
+
+        return {
+            "response": response
+        }
+
+    except Exception as e:
+
+        return {
+            "response": f"❌ AI Error: {str(e)}"
+        }
