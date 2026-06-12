@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from database import SessionLocal, engine
 import models
@@ -8,6 +9,15 @@ from auth import hash_password, verify_password
 
 app = FastAPI(
     title="LifeGuard AI"
+)
+
+# CORS FIX
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Create database tables
@@ -37,8 +47,13 @@ def test():
     }
 
 
+# ==========================
+# USER REGISTRATION
+# ==========================
+
 @app.post("/register")
 def register_user(user: schemas.UserCreate):
+
     db = SessionLocal()
 
     existing_user = (
@@ -67,8 +82,13 @@ def register_user(user: schemas.UserCreate):
     }
 
 
+# ==========================
+# LOGIN
+# ==========================
+
 @app.post("/login")
 def login_user(user: schemas.UserLogin):
+
     db = SessionLocal()
 
     existing_user = (
@@ -90,8 +110,13 @@ def login_user(user: schemas.UserLogin):
     }
 
 
+# ==========================
+# WELLNESS SAVE
+# ==========================
+
 @app.post("/wellness")
 def save_wellness(wellness: schemas.WellnessCreate):
+
     db = SessionLocal()
 
     new_record = models.Wellness(
@@ -109,8 +134,13 @@ def save_wellness(wellness: schemas.WellnessCreate):
     }
 
 
+# ==========================
+# WELLNESS HISTORY
+# ==========================
+
 @app.get("/wellness-history/{email}")
 def get_wellness_history(email: str):
+
     db = SessionLocal()
 
     records = (
