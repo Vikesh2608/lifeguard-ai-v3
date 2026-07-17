@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import HTTPException
 
 from database import SessionLocal, engine
 import models
@@ -105,16 +106,30 @@ def login_user(user: schemas.UserLogin):
         .first()
     )
 
-    if existing_user and verify_password(
+    # Email does not exist
+    if not existing_user:
+        raise HTTPException(
+            status_code=404,
+            detail="Email not found"
+        )
+
+    # Wrong password
+    if not verify_password(
         user.password,
         existing_user.password
     ):
-        return {
-            "message": "Login Successful"
-        }
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect password"
+        )
 
     return {
-        "message": "Invalid Credentials"
+        "message": "Login Successful",
+        "user": {
+            "first_name": existing_user.first_name,
+            "last_name": existing_user.last_name,
+            "email": existing_user.email
+        }
     }
 
 # ==========================
