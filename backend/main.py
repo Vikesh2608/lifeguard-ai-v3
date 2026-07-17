@@ -257,3 +257,47 @@ def ai_chat(request: schemas.AIRequest):
         return {
             "response": f"❌ AI Error: {str(e)}"
         }
+
+# ==========================
+# ADD FAMILY MEMBER
+# ==========================
+
+@app.post("/family")
+def add_family_member(member: schemas.FamilyMemberCreate):
+
+    db = SessionLocal()
+
+    new_member = models.FamilyMember(
+        owner_email=member.owner_email,
+        first_name=member.first_name,
+        last_name=member.last_name,
+        relationship=member.relationship,
+        phone=member.phone,
+        email=member.email,
+        medical_notes=member.medical_notes,
+    )
+
+    db.add(new_member)
+    db.commit()
+
+    return {
+        "message": "Family member added successfully"
+    }
+
+
+# ==========================
+# GET FAMILY MEMBERS
+# ==========================
+
+@app.get("/family/{email}")
+def get_family(email: str):
+
+    db = SessionLocal()
+
+    members = (
+        db.query(models.FamilyMember)
+        .filter(models.FamilyMember.owner_email == email)
+        .all()
+    )
+
+    return members
