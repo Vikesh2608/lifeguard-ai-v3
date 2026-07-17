@@ -1,11 +1,18 @@
 from openai import OpenAI
 import os
 
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
-)
 
 def ask_lifeguard_ai(user_message):
+
+    api_key = os.getenv("OPENAI_API_KEY")
+
+    if not api_key:
+        return (
+            "🤖 LifeGuard AI is currently unavailable.\n\n"
+            "The OpenAI API key has not been configured yet."
+        )
+
+    client = OpenAI(api_key=api_key)
 
     prompt = f"""
     You are LifeGuard AI.
@@ -23,14 +30,18 @@ def ask_lifeguard_ai(user_message):
     {user_message}
     """
 
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
-    )
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+        )
 
-    return response.choices[0].message.content
+        return response.choices[0].message.content
+
+    except Exception as e:
+        return f"❌ AI Error: {str(e)}"
