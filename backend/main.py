@@ -301,3 +301,31 @@ def get_family(email: str):
     )
 
     return members
+
+# ==========================
+# DELETE FAMILY MEMBER
+# ==========================
+
+@app.delete("/family/{member_id}")
+def delete_family_member(member_id: int):
+
+    db = SessionLocal()
+
+    member = (
+        db.query(models.FamilyMember)
+        .filter(models.FamilyMember.id == member_id)
+        .first()
+    )
+
+    if not member:
+        raise HTTPException(
+            status_code=404,
+            detail="Family member not found"
+        )
+
+    db.delete(member)
+    db.commit()
+
+    return {
+        "message": "Family member deleted successfully"
+    }
