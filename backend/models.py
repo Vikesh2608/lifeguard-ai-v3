@@ -40,10 +40,9 @@ class FamilyMember(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    owner_email = Column(String)
+    owner_email = Column(String, index=True)
 
     first_name = Column(String)
-
     last_name = Column(String)
 
     relationship = Column(String)
@@ -53,3 +52,13 @@ class FamilyMember(Base):
     email = Column(String)
 
     medical_notes = Column(String)
+
+    blood_group = Column(String)
+
+    allergies = Column(String)
+
+    medications = Column(String)
+
+    doctor = Column(String)
+
+    hospital = Column(String)
