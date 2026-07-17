@@ -34,3 +34,22 @@ class Wellness(Base):
         DateTime,
         default=datetime.utcnow
     )
+
+class FamilyMember(Base):
+    __tablename__ = "family_members"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    owner_email = Column(String)
+
+    first_name = Column(String)
+
+    last_name = Column(String)
+
+    relationship = Column(String)
+
+    phone = Column(String)
+
+    email = Column(String)
+
+    medical_notes = Column(String)
