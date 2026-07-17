@@ -1,6 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import HTTPException
 
 from database import SessionLocal, engine
 import models
@@ -10,7 +9,8 @@ from auth import hash_password, verify_password
 from ai_assistant import ask_lifeguard_ai
 
 app = FastAPI(
-    title="LifeGuard AI"
+    title="LifeGuard AI",
+    version="4.0"
 )
 
 # ==========================
@@ -38,15 +38,15 @@ models.Base.metadata.create_all(bind=engine)
 @app.get("/")
 def home():
     return {
-        "message": "LifeGuard AI v3 Running Successfully"
+        "message": "LifeGuard AI v4 Running Successfully"
     }
 
 
 @app.get("/debug")
 def debug():
     return {
-        "version": "v3",
-        "status": "debug endpoint working"
+        "version": "v4",
+        "status": "Backend Running"
     }
 
 
@@ -56,6 +56,7 @@ def test():
         "status": "SUCCESS",
         "message": "Backend Connected"
     }
+
 
 # ==========================
 # USER REGISTRATION
@@ -91,6 +92,7 @@ def register_user(user: schemas.UserCreate):
         "message": "User Registered Successfully"
     }
 
+
 # ==========================
 # LOGIN
 # ==========================
@@ -106,14 +108,12 @@ def login_user(user: schemas.UserLogin):
         .first()
     )
 
-    # Email does not exist
     if not existing_user:
         raise HTTPException(
             status_code=404,
             detail="Email not found"
         )
 
-    # Wrong password
     if not verify_password(
         user.password,
         existing_user.password
@@ -132,200 +132,3 @@ def login_user(user: schemas.UserLogin):
         }
     }
 
-# ==========================
-# WELLNESS SAVE
-# ==========================
-
-@app.post("/wellness")
-def save_wellness(wellness: schemas.WellnessCreate):
-
-    db = SessionLocal()
-
-    new_record = models.Wellness(
-        email=wellness.email,
-        mood=wellness.mood,
-        sleep_hours=wellness.sleep_hours,
-        stress_level=wellness.stress_level
-    )
-
-    db.add(new_record)
-    db.commit()
-
-    return {
-        "message": "Wellness Saved Successfully"
-    }
-
-# ==========================
-# WELLNESS HISTORY
-# ==========================
-
-@app.get("/wellness-history/{email}")
-def get_wellness_history(email: str):
-
-    db = SessionLocal()
-
-    records = (
-        db.query(models.Wellness)
-        .filter(models.Wellness.email == email)
-        .all()
-    )
-
-    return records
-
-# ==========================
-# HEALTH SCORE
-# ==========================
-
-@app.get("/health-score/{email}")
-def get_health_score(email: str):
-
-    db = SessionLocal()
-
-    records = (
-        db.query(models.Wellness)
-        .filter(models.Wellness.email == email)
-        .all()
-    )
-
-    if not records:
-        return {
-            "overall_score": 0,
-            "sleep_score": 0,
-            "stress_score": 0,
-            "mood_score": 0,
-            "message": "No wellness records found"
-        }
-
-    latest = records[-1]
-
-    # Sleep Score
-    sleep_score = min(
-        (latest.sleep_hours / 8) * 100,
-        100
-    )
-
-    # Stress Score
-    stress_score = max(
-        100 - (latest.stress_level * 10),
-        0
-    )
-
-    # Mood Score
-    mood = latest.mood.lower()
-
-    if mood == "happy":
-        mood_score = 100
-    elif mood == "good":
-        mood_score = 90
-    elif mood == "okay":
-        mood_score = 70
-    elif mood == "sad":
-        mood_score = 40
-    else:
-        mood_score = 60
-
-    overall_score = round(
-        (sleep_score + stress_score + mood_score) / 3
-    )
-
-    return {
-        "overall_score": overall_score,
-        "sleep_score": round(sleep_score),
-        "stress_score": round(stress_score),
-        "mood_score": round(mood_score)
-    }
-
-# ==========================
-# AI ASSISTANT
-# ==========================
-
-@app.post("/ai-chat")
-def ai_chat(request: schemas.AIRequest):
-
-    try:
-
-        response = ask_lifeguard_ai(
-            request.message
-        )
-
-        return {
-            "response": response
-        }
-
-    except Exception as e:
-
-        return {
-            "response": f"❌ AI Error: {str(e)}"
-        }
-
-# ==========================
-# ADD FAMILY MEMBER
-# ==========================
-
-@app.post("/family")
-def add_family_member(member: schemas.FamilyMemberCreate):
-
-    db = SessionLocal()
-
-    new_member = models.FamilyMember(
-        owner_email=member.owner_email,
-        first_name=member.first_name,
-        last_name=member.last_name,
-        relationship=member.relationship,
-        phone=member.phone,
-        email=member.email,
-        medical_notes=member.medical_notes,
-    )
-
-    db.add(new_member)
-    db.commit()
-
-    return {
-        "message": "Family member added successfully"
-    }
-
-
-# ==========================
-# GET FAMILY MEMBERS
-# ==========================
-
-@app.get("/family/{email}")
-def get_family(email: str):
-
-    db = SessionLocal()
-
-    members = (
-        db.query(models.FamilyMember)
-        .filter(models.FamilyMember.owner_email == email)
-        .all()
-    )
-
-    return members
-
-# ==========================
-# DELETE FAMILY MEMBER
-# ==========================
-
-@app.delete("/family/{member_id}")
-def delete_family_member(member_id: int):
-
-    db = SessionLocal()
-
-    member = (
-        db.query(models.FamilyMember)
-        .filter(models.FamilyMember.id == member_id)
-        .first()
-    )
-
-    if not member:
-        raise HTTPException(
-            status_code=404,
-            detail="Family member not found"
-        )
-
-    db.delete(member)
-    db.commit()
-
-    return {
-        "message": "Family member deleted successfully"
-    }
