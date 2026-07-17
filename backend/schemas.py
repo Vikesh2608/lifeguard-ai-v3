@@ -24,6 +24,8 @@ class AIRequest(BaseModel):
 
 from typing import Optional
 
+from typing import Optional
+
 class FamilyMemberCreate(BaseModel):
 
     owner_email: str
@@ -34,8 +36,18 @@ class FamilyMemberCreate(BaseModel):
 
     relationship: str
 
-    phone: str
+    phone: Optional[str] = ""
 
-    email: str
+    email: Optional[str] = ""
 
     medical_notes: Optional[str] = ""
+
+    blood_group: Optional[str] = ""
+
+    allergies: Optional[str] = ""
+
+    medications: Optional[str] = ""
+
+    doctor: Optional[str] = ""
+
+    hospital: Optional[str] = ""
