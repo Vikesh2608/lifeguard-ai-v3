@@ -21,3 +21,21 @@ class WellnessCreate(BaseModel):
 
 class AIRequest(BaseModel):
     message: str
+
+from typing import Optional
+
+class FamilyMemberCreate(BaseModel):
+
+    owner_email: str
+
+    first_name: str
+
+    last_name: str
+
+    relationship: str
+
+    phone: str
+
+    email: str
+
+    medical_notes: Optional[str] = ""
